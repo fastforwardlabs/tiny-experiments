@@ -19,16 +19,19 @@ In fact, a sub-token model is probably needed for spellcheck, since BERT doesn't
 know what to do with out-of-vocabulary words.
 """
 
-model_class = hf.BertForMaskedLM
-tokenizer_class = hf.BertTokenizer
-pretrained_weights = 'bert-base-uncased'
-
-tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
+@st.cache(allow_output_mutation=True)
+def load_model():
+    model_class = hf.BertForMaskedLM
+    tokenizer_class = hf.BertTokenizer
+    pretrained_weights = 'bert-base-uncased'
+    tokenizer = tokenizer_class.from_pretrained(pretrained_weights)
+    model = model_class.from_pretrained(pretrained_weights)
+    return model, tokenizer
 
 softmax = torch.nn.Softmax(dim=0)
 
 # this will be slow the first time it runs - we need to download the weights
-model = model_class.from_pretrained(pretrained_weights)
+model, tokenizer = load_model()
 
 input_text = st.text_input(
     label="Enter some text",
